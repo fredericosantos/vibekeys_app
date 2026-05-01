@@ -1,7 +1,7 @@
 {
     "name": "vibekeys",
-    "description": "VibeKeys BLE controller - sends messages/status to BLE keyboard",
-    "version": "0.1.2",
+    "description": "VibeKeys BLE controller — sends messages/status to BLE keyboard, with optional SSH-remote bridge.",
+    "version": "0.2.0",
     "author": {
         "name": "csh"
     }

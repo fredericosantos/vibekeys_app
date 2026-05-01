@@ -1,0 +1,20 @@
+{
+  "name": "vibekeys-fork",
+  "owner": {
+    "name": "fsx"
+  },
+  "metadata": {
+    "description": "VibeKeys plugin fork with SSH-remote bridge (vibekeys serve / bootstrap).",
+    "version": "0.2.0"
+  },
+  "plugins": [
+    {
+      "name": "vibekeys",
+      "source": {
+        "source": "git-subdir",
+        "path": "vibekeys_plugin"
+      },
+      "description": "VibeKeys BLE controller with optional SSH-remote bridge."
+    }
+  ]
+}

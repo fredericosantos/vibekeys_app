@@ -9,6 +9,9 @@ use std::time::{Duration, Instant};
 use tokio::time;
 use uuid::Uuid;
 
+mod bootstrap;
+mod serve;
+
 /// BLE Controller CLI
 #[derive(Parser, Debug)]
 #[command(name = "vibekeys")]
@@ -34,6 +37,24 @@ enum Command {
     },
     /// Read Claude Code hook JSON from stdin and forward to device
     Hook,
+    /// Run a local HTTP bridge that forwards POSTed hook JSON to the device.
+    /// Use this on a laptop to receive hook events from a remote SSH host
+    /// over a `ssh -R <port>:127.0.0.1:<port>` tunnel.
+    Serve {
+        /// Address to bind. Default 127.0.0.1:7777 (loopback only).
+        #[arg(long, default_value = "127.0.0.1:7777")]
+        bind: String,
+    },
+    /// One-shot setup: detect environment, write config, install service.
+    /// Idempotent — safe to re-run.
+    Bootstrap {
+        /// Force a specific mode. Auto-detected by default.
+        #[arg(long, value_enum)]
+        mode: Option<bootstrap::Mode>,
+        /// Print what would happen, don't touch the filesystem.
+        #[arg(long)]
+        dry_run: bool,
+    },
 }
 
 // Controller Service UUID
@@ -61,6 +82,8 @@ async fn main() -> anyhow::Result<()> {
             Ok(())
         }
         Command::Hook => handle_hook().await,
+        Command::Serve { bind } => serve::run(&bind).await,
+        Command::Bootstrap { mode, dry_run } => bootstrap::run(mode, dry_run).await,
     }
 }
 
@@ -123,8 +146,13 @@ async fn send_to_device(char_uuid: Uuid, data: &[u8]) -> anyhow::Result<()> {
 async fn handle_hook() -> anyhow::Result<()> {
     let mut input = String::new();
     io::stdin().read_to_string(&mut input).ok();
+    process_hook_json(input.as_bytes()).await
+}
 
-    let hook: serde_json::Value = match serde_json::from_str(&input) {
+/// Transport-agnostic hook processor: takes raw hook JSON bytes (from stdin
+/// or an HTTP request body) and dispatches the appropriate LCD message.
+pub(crate) async fn process_hook_json(input: &[u8]) -> anyhow::Result<()> {
+    let hook: serde_json::Value = match serde_json::from_slice(input) {
         Ok(v) => v,
         Err(_) => return Ok(()),
     };

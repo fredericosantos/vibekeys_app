@@ -1,12 +1,23 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/vibekeys-session-nudge"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
             "async": true,
-            "command": "vibekeys hook"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/vibekeys-hook-dispatch"
           }
         ]
       }
@@ -17,7 +28,7 @@
           {
             "type": "command",
             "async": true,
-            "command": "vibekeys hook"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/vibekeys-hook-dispatch"
           }
         ]
       }
@@ -28,7 +39,7 @@
           {
             "type": "command",
             "async": true,
-            "command": "vibekeys hook"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/vibekeys-hook-dispatch"
           }
         ]
       }
@@ -40,7 +51,7 @@
           {
             "type": "command",
             "async": true,
-            "command": "vibekeys hook"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/vibekeys-hook-dispatch"
           }
         ]
       }
@@ -52,7 +63,7 @@
           {
             "type": "command",
             "async": true,
-            "command": "vibekeys hook"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/vibekeys-hook-dispatch"
           }
         ]
       }

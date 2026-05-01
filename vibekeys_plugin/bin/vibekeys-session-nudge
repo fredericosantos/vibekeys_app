@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+# vibekeys-session-nudge — emits a one-time hint when the plugin is freshly installed.
+#
+# If ~/.config/vibekeys/config.json doesn't exist, print a short message via
+# stderr telling the user to run /vibekeys-setup. Stays quiet otherwise.
+# Always exits 0 — this must never block Claude Code.
+
+set -e
+
+# Forward the hook JSON to the normal dispatcher first (so SessionStart still
+# updates the LCD if the user is already configured).
+if [ -n "${VIBEKEYS_REMOTE:-}" ] || command -v vibekeys >/dev/null 2>&1; then
+    # tee-style: stash stdin so we can both forward it and look at config.
+    tmp=$(mktemp -t vibekeys-hook.XXXXXX) || exit 0
+    cat - > "$tmp"
+    "$(dirname "$0")/vibekeys-hook-dispatch" < "$tmp" || true
+    rm -f "$tmp"
+fi
+
+config="${HOME}/.config/vibekeys/config.json"
+if [ ! -f "$config" ]; then
+    echo "[vibekeys] not configured yet — run /vibekeys-setup to get started." >&2
+fi
+exit 0

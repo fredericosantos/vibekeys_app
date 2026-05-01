@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+# vibekeys-hook-dispatch — pick BLE-direct or HTTP-bridge transport per session.
+#
+# Reads Claude Code hook JSON on stdin and routes it:
+#   - if VIBEKEYS_REMOTE is set, POST the body to that URL (SSH-remote workflow)
+#   - else, pipe to `vibekeys hook` (local BLE workflow)
+#
+# Always exits 0; hook events must never fail Claude Code.
+
+set -e
+
+if [ -n "${VIBEKEYS_REMOTE:-}" ]; then
+    # --max-time 1: never block Claude Code if the laptop bridge is gone.
+    # --fail-with-body: still exit 0 below; we just want to drop on error.
+    curl -sS --max-time 1 -X POST \
+        --data-binary @- \
+        -H 'Content-Type: application/json' \
+        "$VIBEKEYS_REMOTE" >/dev/null 2>&1 || true
+    exit 0
+fi
+
+if command -v vibekeys >/dev/null 2>&1; then
+    vibekeys hook >/dev/null 2>&1 || true
+fi
+exit 0
