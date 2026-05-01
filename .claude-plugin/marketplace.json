@@ -11,7 +11,8 @@
     {
       "name": "vibekeys",
       "source": {
-        "source": "git-subdir",
+        "source": "github",
+        "repo": "fredericosantos/vibekeys_app",
         "path": "vibekeys_plugin"
       },
       "description": "VibeKeys BLE controller with optional SSH-remote bridge."
